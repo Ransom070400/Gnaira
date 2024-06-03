@@ -1,15 +1,22 @@
-const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
+const hre = require("hardhat");
+const { deploy } = hre.deployments;
 
-const JAN_1ST_2030 = 1893456000;
-const ONE_GWEI = 1_000_000_000n;
+async function main() {
+  const [deployer] = await hre.ethers.getSigners();
 
-module.exports = buildModule("LockModule", (m) => {
-  const unlockTime = m.getParameter("unlockTime", JAN_1ST_2030);
-  const lockedAmount = m.getParameter("lockedAmount", ONE_GWEI);
+  console.log("Deploying contracts with the account:", deployer.address);
 
-  const lock = m.contract("Lock", [unlockTime], {
-    value: lockedAmount,
+  const Gnaira = await deploy("Gnaira", {
+    from: deployer.address,
+    log: true,
   });
 
-  return { lock };
-});
+  console.log("Gnaira contract deployed to:", Gnaira.address);
+}
+
+main()
+ .then(() => process.exit(0))
+ .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
